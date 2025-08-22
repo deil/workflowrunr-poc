@@ -22,15 +22,15 @@ public class TranscribeVideoWorkflow {
             throw new IllegalArgumentException("Video file does not exist: " + videoFile);
         }
 
-        Path audioFile = extractAudio(videoPath, ctx);
+        var audioFile = ctx.action("Extract audio track", () -> extractAudio(videoPath));
         try {
-            return transcribeAudio(audioFile, ctx);
+            return ctx.action("Transcribe audio to text", () -> transcribeAudio(audioFile));
         } finally {
             Files.deleteIfExists(audioFile);
         }
     }
 
-    private Path extractAudio(Path videoFile, ExecutionContext ctx) {
+    private Path extractAudio(Path videoFile) {
         String videoFileName = videoFile.getFileName().toString();
         String audioFileName = videoFileName.replaceFirst("\\.[^.]+$", ".wav");
         Path audioFile = videoFile.getParent().resolve(audioFileName);
@@ -47,7 +47,7 @@ public class TranscribeVideoWorkflow {
         return audioFile;
     }
 
-    private String transcribeAudio(Path audioFile, ExecutionContext ctx) {
+    private String transcribeAudio(Path audioFile) {
         ExecutionResult result = executeProcess(
                 Paths.get(System.getProperty("user.dir"), "whisper").toFile(),
                 "uv", "run", "whisper", audioFile.toString(), "--model", "base");
