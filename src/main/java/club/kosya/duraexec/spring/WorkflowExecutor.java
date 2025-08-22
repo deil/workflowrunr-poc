@@ -1,5 +1,7 @@
-package club.kosya.duraexec;
+package club.kosya.duraexec.spring;
 
+import club.kosya.duraexec.ExecutionContext;
+import club.kosya.duraexec.internal.ExecutionsRepository;
 import club.kosya.lib.lambda.WorkflowLambda;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

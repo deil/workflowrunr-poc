@@ -1,5 +1,7 @@
-package club.kosya.duraexec;
+package club.kosya.duraexec.workflows;
 
+import club.kosya.duraexec.ExecutionContext;
+import club.kosya.duraexec.ExecutionResult;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -7,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static club.kosya.duraexec.ExecutionContextImpl.executeProcess;
+import static club.kosya.duraexec.internal.ExecutionContextImpl.executeProcess;
 
 @Slf4j
 public class TranscribeVideoWorkflow {

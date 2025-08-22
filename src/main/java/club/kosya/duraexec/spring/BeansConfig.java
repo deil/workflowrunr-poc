@@ -1,4 +1,4 @@
-package club.kosya.duraexec;
+package club.kosya.duraexec.spring;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

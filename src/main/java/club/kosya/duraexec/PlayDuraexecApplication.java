@@ -1,5 +1,6 @@
 package club.kosya.duraexec;
 
+import club.kosya.duraexec.spring.DummyController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
