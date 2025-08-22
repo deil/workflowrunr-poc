@@ -22,8 +22,12 @@ public class DummyController {
     @Transactional
     @PostMapping
     public String dummy(@RequestBody DummyRequest body) {
+        // can't use body directly, as DummyRequest will become captured parameter
         var fileName = body.file();
-        WorkflowLambda wf = () -> new TranscribeVideoWorkflow().run(fileName);
+
+        // can't use in lambda directly, because in that case it won't be captured as parameter
+        var ctx = ExecutionContext.Placeholder;
+        WorkflowLambda wf = () -> new TranscribeVideoWorkflow().run(ctx, fileName);
 
         var task = new Execution();
         task.setWf(serialize(wf));

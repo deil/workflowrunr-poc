@@ -7,18 +7,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static club.kosya.duraexec.ExecutionContextImpl.executeProcess;
+
 @Slf4j
 public class TranscribeVideoWorkflow {
     @SneakyThrows
-    public String run(String videoFile) {
-        log.info("run(videoFile={})", videoFile);
+    public String run(ExecutionContext ctx, String videoFile) {
+        log.info("run(ctx={}, videoFile={})", ctx, videoFile);
 
         var videoPath = Paths.get(System.getProperty("user.dir")).resolve(videoFile);
         if (!Files.exists(videoPath)) {
             throw new IllegalArgumentException("Video file does not exist: " + videoFile);
         }
 
-        var ctx = new ExecutionContextImpl("1");
         Path audioFile = extractAudio(videoPath, ctx);
         try {
             return transcribeAudio(audioFile, ctx);
@@ -32,7 +33,7 @@ public class TranscribeVideoWorkflow {
         String audioFileName = videoFileName.replaceFirst("\\.[^.]+$", ".wav");
         Path audioFile = videoFile.getParent().resolve(audioFileName);
 
-        ExecutionResult result = ctx.executeProcess("ffmpeg",
+        ExecutionResult result = executeProcess("ffmpeg",
                 "-i", videoFile.toString(),
                 "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
                 "-y", audioFile.toString());
@@ -45,7 +46,7 @@ public class TranscribeVideoWorkflow {
     }
 
     private String transcribeAudio(Path audioFile, ExecutionContext ctx) {
-        ExecutionResult result = ctx.executeProcess(
+        ExecutionResult result = executeProcess(
                 Paths.get(System.getProperty("user.dir"), "whisper").toFile(),
                 "uv", "run", "whisper", audioFile.toString(), "--model", "base");
 

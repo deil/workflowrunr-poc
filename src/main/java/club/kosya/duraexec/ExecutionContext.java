@@ -1,10 +1,12 @@
 package club.kosya.duraexec;
 
-import java.io.File;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-public interface ExecutionContext {
-    String getId();
+@RequiredArgsConstructor
+public class ExecutionContext {
+    public final static ExecutionContext Placeholder = new ExecutionContext(null);
 
-    ExecutionResult executeProcess(String executable, String... args);
-    ExecutionResult executeProcess(File workingDirectory, String executable, String... args);
+    @Getter
+    private final String id;
 }

@@ -7,17 +7,17 @@ import lombok.SneakyThrows;
 import java.io.File;
 
 @RequiredArgsConstructor
-public class ExecutionContextImpl implements ExecutionContext {
+public class ExecutionContextImpl {
     @Getter
     private final String id;
 
     @SneakyThrows
-    public ExecutionResult executeProcess(String executable, String... args) {
+    public static ExecutionResult executeProcess(String executable, String... args) {
         return executeProcess(null, executable, args);
     }
 
     @SneakyThrows
-    public ExecutionResult executeProcess(File workingDirectory, String executable, String... args) {
+    public static ExecutionResult executeProcess(File workingDirectory, String executable, String... args) {
         String[] command = new String[args.length + 1];
         command[0] = executable;
         System.arraycopy(args, 0, command, 1, args.length);

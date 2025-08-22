@@ -25,7 +25,10 @@ public class WorkflowExecutor {
         try {
             var execution = executions.findById(event.id()).get();
             var toExecute = bytesToSerializedLambda(execution.getWf());
-            WorkflowLambda restored = fromSerializedLambda(toExecute, execution.getParam1());
+
+            var ctx = new ExecutionContext(Long.toString(execution.getId()));
+
+            WorkflowLambda restored = fromSerializedLambda(toExecute, ctx, execution.getParam1());
             restored.run();
         } catch (Exception ex) {
             log.error("Oops", ex);
