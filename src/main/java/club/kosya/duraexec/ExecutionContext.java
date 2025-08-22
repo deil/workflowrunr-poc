@@ -1,10 +1,12 @@
 package club.kosya.duraexec;
 
+import club.kosya.duraexec.internal.WorkflowAction;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.concurrent.Callable;
+import java.util.UUID;
+import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -14,16 +16,13 @@ public class ExecutionContext {
     @Getter
     private final String id;
 
-    public <R> R action(String name, Callable<R> action) {
-        log.info("Action: {}", name);
-        try {
-            var result = action.call();
-            log.info("Action result: {}", result);
+    public <R> R action(String name, Function<ExecutionContext, R> lambda) {
+        var id = generateActionId(name);
+        var action = new WorkflowAction(this, id, name);
+        return action.execute(lambda);
+    }
 
-            return result;
-        } catch (Exception ex) {
-            log.error("Exception while executing action: {}", ex.getMessage(), ex);
-            throw new RuntimeException(ex);
-        }
+    private String generateActionId(String name) {
+        return UUID.randomUUID().toString();
     }
 }
