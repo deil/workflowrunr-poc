@@ -9,6 +9,10 @@ import java.lang.invoke.MethodType;
 import java.lang.invoke.SerializedLambda;
 
 public class LambdaDeserializer {
+    public static <T> T deserialize(byte[] bytes, Object... capturedArgs) {
+        return fromSerializedLambda(bytesToSerializedLambda(bytes), capturedArgs);
+    }
+
     public static SerializedLambda bytesToSerializedLambda(byte[] data) {
         try (var bais = new ByteArrayInputStream(data);
              var ois = new ObjectInputStream(bais)) {

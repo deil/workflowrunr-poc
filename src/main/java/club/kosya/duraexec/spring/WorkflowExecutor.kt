@@ -2,7 +2,7 @@ package club.kosya.duraexec.spring
 
 import club.kosya.duraexec.ExecutionContext
 import club.kosya.duraexec.internal.ExecutionsRepository
-import club.kosya.lib.lambda.LambdaDeserializer
+import club.kosya.lib.lambda.LambdaDeserializer.deserialize
 import club.kosya.lib.lambda.WorkflowLambda
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Async
@@ -23,12 +23,8 @@ class WorkflowExecutor(
     fun onNewWorkflowSubmitted(event: NewWorkflowSubmitted) {
         try {
             val execution = executions.findById(event.id).get()
-            val toExecute = LambdaDeserializer.bytesToSerializedLambda(execution.wf)
-
             val ctx = ExecutionContext(execution.id.toString())
-
-            val lambda =
-                LambdaDeserializer.fromSerializedLambda<WorkflowLambda?>(toExecute, ctx, execution.param1)
+            val lambda = deserialize<WorkflowLambda>(execution.wf, ctx, execution.param1)
             lambda.run()
         } catch (ex: Exception) {
             log.error("Oops", ex)
