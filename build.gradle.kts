@@ -2,6 +2,10 @@ plugins {
     java
     id("org.springframework.boot") version "3.5.4"
     id("io.spring.dependency-management") version "1.1.7"
+    kotlin("jvm")
+    kotlin("plugin.lombok")
+    id("org.jetbrains.kotlin.plugin.spring")
+    id("io.freefair.lombok") version "8.13.1"
 }
 
 group = "club.kosya"
@@ -34,6 +38,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 tasks.withType<Test> {
