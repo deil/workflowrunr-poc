@@ -22,9 +22,9 @@ public class TranscribeVideoWorkflow {
             throw new IllegalArgumentException("Video file does not exist: " + videoFile);
         }
 
-        var audioFile = ctx.action("Extract audio track", (_ctx) -> extractAudio(videoPath));
+        var audioFile = ctx.action("Extract audio track", () -> extractAudio(videoPath));
         try {
-            return ctx.action("Transcribe audio to text", (_ctx) -> transcribeAudio(audioFile));
+            return ctx.action("Transcribe audio to text", () -> transcribeAudio(audioFile));
         } finally {
             Files.deleteIfExists(audioFile);
         }

@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -16,10 +16,10 @@ public class ExecutionContext {
     @Getter
     private final String id;
 
-    public <R> R action(String name, Function<ExecutionContext, R> lambda) {
+    public <R> R action(String name, Supplier<R> lambda) {
         var id = generateActionId(name);
         var action = new WorkflowAction(this, id, name);
-        return action.execute(lambda);
+        return action.execute(lambda::get);
     }
 
     private String generateActionId(String name) {
