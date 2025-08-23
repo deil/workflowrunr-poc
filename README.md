@@ -3,6 +3,30 @@
 ## Core Purpose
 **WorkflowRunR** is a workflow execution engine that enables complex, restartable processes with external dependencies.
 
+## Current Status
+
+This is a **proof-of-concept** demonstrating the core workflow execution. The Spring Boot components are boilerplate for demonstration purposes.
+
+### Lambda serialization
+
+The lambda serialization system exists to implement the fundamental concept: enable workflows to be scheduled on another thread and restarted later on in case of a failure. The goal is to allow the developers define their workflows as a class with an entry point method, and trigger them as a Java 8 lambda:
+```java
+Workflow.run(() -> new TranscribeVideoWorkflow().run(ctx, fileName));
+```
+
+The long-term vision is to be able to integrate with DI frameworks (like Spring) and achieve devex like the following, where `videoWorkflow` is a Java bean:
+```java
+Workflow.run(() -> videoWorkflow.run(args))
+```
+
+Analyzing lambda expression for further persistence and reconstruction is possible thanks to [SerializedLambda](https://docs.oracle.com/javase/8/docs/api/java/lang/invoke/SerializedLambda.html)
+
+
+At the moment, the current implementation is very simple and has naive assumptions:
+- **Argument Ordering**: Expects `ExecutionContext` to be the first captured argument
+- **Argument Research**: Requires deeper investigation into argument types and values for robust serialization
+
+
 ## Architecture Overview
 
 ### **Primary Innovation: Workflow Execution System**
@@ -54,9 +78,6 @@ Each `action()` call creates a trackable step with unique ID for monitoring and 
 - ✅ Seamless integration with external tools
 - ✅ Workflow lifecycle management with status tracking
 - ✅ Enhanced parameter handling and state preservation
-
-## Current Status
-This is a **proof-of-concept** demonstrating the core workflow execution and serialization capabilities. The Spring Boot components are boilerplate for demonstration purposes.
 
 ## Potential Applications
 - Media processing pipelines (video/audio transcoding)
