@@ -1,6 +1,7 @@
 package club.kosya.duraexec.spring
 
 import club.kosya.duraexec.ExecutionContext
+import club.kosya.duraexec.internal.ExecutionStatus
 import club.kosya.duraexec.internal.ExecutionsRepository
 import club.kosya.lib.lambda.LambdaDeserializer.deserialize
 import club.kosya.lib.lambda.WorkflowLambda
@@ -9,7 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionalEventListener
-import java.util.ArrayList
+import java.time.LocalDateTime
 
 @Component
 class WorkflowExecutor(
@@ -25,15 +26,24 @@ class WorkflowExecutor(
     @TransactionalEventListener
     fun onNewWorkflowSubmitted(event: NewWorkflowSubmitted) {
         try {
-            val execution = executions.findById(event.id).get()
-            val ctx = ExecutionContext(execution.id.toString())
+            var execution = executions.findById(event.id).get()
+            val ctx = ExecutionContext(execution.id.toString(), objectMapper, executions)
 
             val args = mutableListOf<Any>(ctx)
             val params = objectMapper.readValue(execution.params, ArrayList::class.java) as List<Any>
-            args.addAll(params.drop(1)) // skip first arg - this is ExecutionContext
+            args.addAll(params)
 
             val lambda = deserialize<WorkflowLambda>(execution.definition, args)
+            execution.status = ExecutionStatus.Running
+            execution.startedAt = LocalDateTime.now()
+            executions.save(execution)
+
             lambda.run()
+
+            execution = executions.findById(event.id).get()
+            execution.status = ExecutionStatus.Completed
+            execution.completedAt = LocalDateTime.now()
+            executions.save(execution)
         } catch (ex: Exception) {
             log.error("Oops", ex)
         }

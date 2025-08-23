@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import static club.kosya.lib.lambda.LambdaSerializer.serialize;
 
@@ -29,7 +30,11 @@ public class Workflow {
 
         var serializedData = serialize(workflow);
         task.setDefinition(serializedData.definition());
-        var paramsJson = objectMapper.writeValueAsString(serializedData.capturedArgs());
+
+        var capturedArgs = new ArrayList<Object>();
+        serializedData.capturedArgs().stream().skip(1).forEach(capturedArgs::add);
+
+        var paramsJson = objectMapper.writeValueAsString(capturedArgs);
         task.setParams(paramsJson);
 
         return executions.save(task).getId();
