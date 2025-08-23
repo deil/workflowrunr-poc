@@ -1,15 +1,16 @@
 # WorkflowRunR POC
 
 ## Core Purpose
-**WorkflowRunR** is a workflow execution engine that enables complex, observable, and restartable processes with external dependencies.
+**WorkflowRunR** is a workflow execution engine that enables complex, restartable processes with external dependencies.
 
 ## Architecture Overview
 
 ### **Primary Innovation: Workflow Execution System**
 - **Hierarchical Tracking**: Each workflow gets an execution context ID, each step gets a unique action ID
-- **Observable Execution**: Real-time visibility into workflow progress with structured logging
 - **Error Isolation**: Precise identification of failed steps in complex multi-step processes
 - **External Process Integration**: Seamless execution of command-line tools (FFmpeg, Whisper, etc.)
+- **Lifecycle Management**: Complete workflow status tracking from queuing to completion
+- **Enhanced Persistence**: Workflow state and parameters preserved across restarts
 
 ### **Secondary but Critical: Lambda Serialization System**
 - **Persistence Mechanism**: Enables workflows to be serialized and stored in database
@@ -20,9 +21,11 @@
 ## Key Components
 
 ### **Core Workflow Engine** (`internal/`)
+- `Workflow`: Main component for workflow submission and lifecycle management
 - `ExecutionContext`: Manages workflow execution with unique ID tracking
-- `WorkflowAction`: Wraps individual steps with observability and error handling
-- `Execution`: JPA entity for persisting workflow state
+- `WorkflowAction`: Wraps individual steps with error handling and tracking
+- `Execution`: Enhanced entity with status tracking
+- `ExecutionStatus`: Lifecycle states (Queued, Running, Failed, Completed)
 - `ExecutionContextImpl`: Utility for running external processes
 
 ### **Serialization Layer** (`lib/lambda/`)
@@ -48,8 +51,9 @@ Each `action()` call creates a trackable step with unique ID for monitoring and 
 - ✅ Workflows persist across application restarts
 - ✅ Precise error tracking and debugging
 - ✅ Resumable workflows with state preservation
-- ✅ Observable execution of long-running processes
 - ✅ Seamless integration with external tools
+- ✅ Workflow lifecycle management with status tracking
+- ✅ Enhanced parameter handling and state preservation
 
 ## Current Status
 This is a **proof-of-concept** demonstrating the core workflow execution and serialization capabilities. The Spring Boot components are boilerplate for demonstration purposes.
@@ -71,4 +75,6 @@ This is a **proof-of-concept** demonstrating the core workflow execution and ser
 2. Run the application: `./gradlew bootRun`
 3. Submit a workflow via API: `POST http://localhost:8080` with `{"file": "video.mp4"}`
 
-The system enables writing workflows as regular Java/Kotlin code while providing persistence, observability, and restartability built-in.
+The system will automatically handle workflow queuing and execution.
+
+The system enables writing workflows as regular Java/Kotlin code while providing persistence and restartability built-in.

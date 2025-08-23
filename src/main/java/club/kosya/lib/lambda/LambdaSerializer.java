@@ -1,18 +1,24 @@
 package club.kosya.lib.lambda;
 
-import lombok.RequiredArgsConstructor;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.invoke.SerializedLambda;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.util.ReflectionUtils.makeAccessible;
 
 public class LambdaSerializer {
-    public static byte[] serialize(WorkflowLambda lambda) {
-        return serializedLambdaToBytes(toSerializedLambda(lambda));
+    public static SerializationResult serialize(WorkflowLambda lambda) {
+        var serializedLambda = toSerializedLambda(lambda);
+        var args = new ArrayList<Object>();
+        for (var i = 0; i < serializedLambda.getCapturedArgCount(); i++) {
+            args.add(serializedLambda.getCapturedArg(i));
+        }
+
+        return new SerializationResult(serializedLambdaToBytes(serializedLambda), args);
     }
 
     public static <T> SerializedLambda toSerializedLambda(T value) {
@@ -56,5 +62,8 @@ public class LambdaSerializer {
                                 String functionalInterfaceMethodName, String functionalInterfaceMethodSignature,
                                 String implClass, String implMethodName, String implMethodSignature, int implMethodKind,
                                 String instantiatedMethodType, int capturedArgsCount) implements Serializable {
+    }
+
+    public record SerializationResult(byte[] definition, List<Object> capturedArgs) {
     }
 }

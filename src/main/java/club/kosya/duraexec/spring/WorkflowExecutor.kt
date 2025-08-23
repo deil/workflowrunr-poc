@@ -30,7 +30,7 @@ class WorkflowExecutor(
 
             val args = mutableListOf<Any>(ctx)
             val params = objectMapper.readValue(execution.params, ArrayList::class.java) as List<Any>
-            args.addAll(params)
+            args.addAll(params.drop(1)) // skip first arg - this is ExecutionContext
 
             val lambda = deserialize<WorkflowLambda>(execution.definition, args)
             lambda.run()

@@ -16,16 +16,16 @@ class LambdaSerializationIntegrationTest {
         // Arrange
         AtomicBoolean executed = new AtomicBoolean(false);
         WorkflowLambda originalLambda = () -> executed.set(true);
-        
+
         // Act
-        byte[] serialized = serialize(originalLambda);
-        WorkflowLambda deserializedLambda = deserialize(serialized, executed);
-        
+        var result = serialize(originalLambda);
+        WorkflowLambda deserializedLambda = deserialize(result.definition(), executed);
+
         // Assert
-        assertNotNull(serialized);
-        assertTrue(serialized.length > 0);
+        assertNotNull(result.definition());
+        assertTrue(result.definition().length > 0);
         assertNotNull(deserializedLambda);
-        
+
         assertFalse(executed.get());
         deserializedLambda.run();
         assertTrue(executed.get());
@@ -37,15 +37,15 @@ class LambdaSerializationIntegrationTest {
         AtomicReference<String> result = new AtomicReference<>();
         String capturedValue = "test-value-123";
         WorkflowLambda originalLambda = () -> result.set(capturedValue);
-        
+
         // Act
-        byte[] serialized = serialize(originalLambda);
-        WorkflowLambda deserializedLambda = deserialize(serialized, result, capturedValue);
-        
+        var serializationResult = serialize(originalLambda);
+        WorkflowLambda deserializedLambda = deserialize(serializationResult.definition(), result, capturedValue);
+
         // Assert
-        assertNotNull(serialized);
+        assertNotNull(serializationResult.definition());
         assertNotNull(deserializedLambda);
-        
+
         assertNull(result.get());
         deserializedLambda.run();
         assertEquals(capturedValue, result.get());
@@ -58,12 +58,12 @@ class LambdaSerializationIntegrationTest {
         String value1 = "hello";
         String value2 = "world";
         WorkflowLambda originalLambda = () -> result.set(value1 + " " + value2);
-        
+
         // Act
-        byte[] serialized = serialize(originalLambda);
-        WorkflowLambda deserializedLambda = deserialize(serialized, result, value1, value2);
+        var serializationResult = serialize(originalLambda);
+        WorkflowLambda deserializedLambda = deserialize(serializationResult.definition(), result, value1, value2);
         deserializedLambda.run();
-        
+
         // Assert
         assertEquals("hello world", result.get());
     }
@@ -73,13 +73,13 @@ class LambdaSerializationIntegrationTest {
         // Arrange
         String capturedValue = "repeatable-test";
         WorkflowLambda lambda = () -> System.out.println(capturedValue);
-        
+
         // Act
-        byte[] serialized1 = serialize(lambda);
-        byte[] serialized2 = serialize(lambda);
-        
+        var result1 = serialize(lambda);
+        var result2 = serialize(lambda);
+
         // Assert
-        assertArrayEquals(serialized1, serialized2);
+        assertArrayEquals(result1.definition(), result2.definition());
     }
 
     @Test
@@ -87,11 +87,11 @@ class LambdaSerializationIntegrationTest {
         // Arrange
         String originalValue = "original";
         WorkflowLambda lambda = () -> System.out.println(originalValue);
-        byte[] serialized = serialize(lambda);
-        
+        var serializationResult = serialize(lambda);
+
         // Act & Assert
         assertThrows(RuntimeException.class, () -> {
-            deserialize(serialized, "wrong-number-of-args", "extra-arg");
+            deserialize(serializationResult.definition(), "wrong-number-of-args", "extra-arg");
         });
     }
 
@@ -99,11 +99,11 @@ class LambdaSerializationIntegrationTest {
     void testLambdaWithoutCapturedVariables() {
         // Arrange
         WorkflowLambda lambda = () -> System.out.println("No captured variables");
-        
+
         // Act
-        byte[] serialized = serialize(lambda);
-        WorkflowLambda deserializedLambda = deserialize(serialized);
-        
+        var serializationResult = serialize(lambda);
+        WorkflowLambda deserializedLambda = deserialize(serializationResult.definition());
+
         // Assert
         assertNotNull(deserializedLambda);
         assertDoesNotThrow(() -> deserializedLambda.run());

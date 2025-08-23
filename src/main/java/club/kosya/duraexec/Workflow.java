@@ -22,13 +22,14 @@ public class Workflow {
 
     @SneakyThrows
     @Transactional
-    public long run(WorkflowLambda workflow, Object... args) {
+    public long run(WorkflowLambda workflow) {
         var task = new Execution();
         task.setStatus(ExecutionStatus.Queued);
         task.setQueuedAt(LocalDateTime.now());
 
-        task.setDefinition(serialize(workflow));
-        var paramsJson = objectMapper.writeValueAsString(args);
+        var serializedData = serialize(workflow);
+        task.setDefinition(serializedData.definition());
+        var paramsJson = objectMapper.writeValueAsString(serializedData.capturedArgs());
         task.setParams(paramsJson);
 
         return executions.save(task).getId();

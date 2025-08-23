@@ -28,7 +28,7 @@ public class DummyController {
         // can't use in lambda directly, because in that case it won't be captured as parameter
         var ctx = ExecutionContext.Placeholder;
 
-        var executionId = workflow.run(() -> new TranscribeVideoWorkflow().run(ctx, fileName), fileName);
+        var executionId = workflow.run(() -> new TranscribeVideoWorkflow().run(ctx, fileName));
         eventPublisher.publishEvent(new WorkflowExecutor.NewWorkflowSubmitted(executionId));
 
         return Long.toString(executionId);
