@@ -4,14 +4,17 @@ import club.kosya.duraexec.ExecutionContext
 import club.kosya.duraexec.internal.ExecutionsRepository
 import club.kosya.lib.lambda.LambdaDeserializer.deserialize
 import club.kosya.lib.lambda.WorkflowLambda
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionalEventListener
+import java.util.ArrayList
 
 @Component
 class WorkflowExecutor(
     private val executions: ExecutionsRepository,
+    private val objectMapper: ObjectMapper,
 ) {
     @JvmRecord
     data class NewWorkflowSubmitted(
@@ -24,7 +27,12 @@ class WorkflowExecutor(
         try {
             val execution = executions.findById(event.id).get()
             val ctx = ExecutionContext(execution.id.toString())
-            val lambda = deserialize<WorkflowLambda>(execution.wf, ctx, execution.param1)
+
+            val args = mutableListOf<Any>(ctx)
+            val params = objectMapper.readValue(execution.params, ArrayList::class.java) as List<Any>
+            args.addAll(params)
+
+            val lambda = deserialize<WorkflowLambda>(execution.definition, args)
             lambda.run()
         } catch (ex: Exception) {
             log.error("Oops", ex)

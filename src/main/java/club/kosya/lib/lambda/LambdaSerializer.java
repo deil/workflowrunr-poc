@@ -1,5 +1,7 @@
 package club.kosya.lib.lambda;
 
+import lombok.RequiredArgsConstructor;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -39,7 +41,8 @@ public class LambdaSerializer {
                     serializedLambda.getImplMethodName(),
                     serializedLambda.getImplMethodSignature(),
                     serializedLambda.getImplMethodKind(),
-                    serializedLambda.getInstantiatedMethodType()
+                    serializedLambda.getInstantiatedMethodType(),
+                    serializedLambda.getCapturedArgCount()
             );
 
             oos.writeObject(data);
@@ -49,30 +52,9 @@ public class LambdaSerializer {
         }
     }
 
-    static class SerializedLambdaData implements Serializable {
-        final String capturingClass;
-        final String functionalInterfaceClass;
-        final String functionalInterfaceMethodName;
-        final String functionalInterfaceMethodSignature;
-        final String implClass;
-        final String implMethodName;
-        final String implMethodSignature;
-        final int implMethodKind;
-        final String instantiatedMethodType;
-
-        public SerializedLambdaData(String capturingClass, String functionalInterfaceClass,
-                                    String functionalInterfaceMethodName, String functionalInterfaceMethodSignature,
-                                    String implClass, String implMethodName, String implMethodSignature,
-                                    int implMethodKind, String instantiatedMethodType) {
-            this.capturingClass = capturingClass;
-            this.functionalInterfaceClass = functionalInterfaceClass;
-            this.functionalInterfaceMethodName = functionalInterfaceMethodName;
-            this.functionalInterfaceMethodSignature = functionalInterfaceMethodSignature;
-            this.implClass = implClass;
-            this.implMethodName = implMethodName;
-            this.implMethodSignature = implMethodSignature;
-            this.implMethodKind = implMethodKind;
-            this.instantiatedMethodType = instantiatedMethodType;
-        }
+    record SerializedLambdaData(String capturingClass, String functionalInterfaceClass,
+                                String functionalInterfaceMethodName, String functionalInterfaceMethodSignature,
+                                String implClass, String implMethodName, String implMethodSignature, int implMethodKind,
+                                String instantiatedMethodType, int capturedArgsCount) implements Serializable {
     }
 }

@@ -7,10 +7,16 @@ import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.SerializedLambda;
+import java.util.Arrays;
+import java.util.List;
 
 public class LambdaDeserializer {
     public static <T> T deserialize(byte[] bytes, Object... capturedArgs) {
-        return fromSerializedLambda(bytesToSerializedLambda(bytes), capturedArgs);
+        return deserialize(bytes, Arrays.asList(capturedArgs));
+    }
+
+    public static <T> T deserialize(byte[] bytes, List<Object> capturedArgs) {
+        return fromSerializedLambda(bytesToSerializedLambda(bytes), capturedArgs.toArray());
     }
 
     public static SerializedLambda bytesToSerializedLambda(byte[] data) {
@@ -18,23 +24,23 @@ public class LambdaDeserializer {
              var ois = new ObjectInputStream(bais)) {
             var lambdaData = (LambdaSerializer.SerializedLambdaData) ois.readObject();
             return new SerializedLambda(
-                    Class.forName(lambdaData.capturingClass.replace('/', '.')),
-                    lambdaData.functionalInterfaceClass,
-                    lambdaData.functionalInterfaceMethodName,
-                    lambdaData.functionalInterfaceMethodSignature,
-                    lambdaData.implMethodKind,
-                    lambdaData.implClass,
-                    lambdaData.implMethodName,
-                    lambdaData.implMethodSignature,
-                    lambdaData.instantiatedMethodType,
-                    new Object[0]
+                    Class.forName(lambdaData.capturingClass().replace('/', '.')),
+                    lambdaData.functionalInterfaceClass(),
+                    lambdaData.functionalInterfaceMethodName(),
+                    lambdaData.functionalInterfaceMethodSignature(),
+                    lambdaData.implMethodKind(),
+                    lambdaData.implClass(),
+                    lambdaData.implMethodName(),
+                    lambdaData.implMethodSignature(),
+                    lambdaData.instantiatedMethodType(),
+                    new Object[lambdaData.capturedArgsCount()]
             );
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Failed to deserialize lambda", e);
         }
     }
 
-    public static <T> T fromSerializedLambda(SerializedLambda serializedLambda, Object... capturedArgs) {
+    public static <T> T fromSerializedLambda(SerializedLambda serializedLambda, Object[] capturedArgs) {
         try {
             var capturingClass =
                     Class.forName(serializedLambda.getCapturingClass().replace('/', '.'));
